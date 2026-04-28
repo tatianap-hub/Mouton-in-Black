@@ -1,205 +1,1334 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhereWear – Screening Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f5f3; color: #1a1a1a; padding: 32px; }
-  h1 { font-size: 18px; font-weight: 500; margin-bottom: 20px; color: #1a1a1a; }
+body {
+	font-family: Arial, sans-serif;
+	font-size: 13px;
+	color: #222;
+	padding: 16px;
+}
+a {
+	color:#0041CC
+}
+h2 {
+	font-size: 18px;
+}
+h1 {
+	font-size: 28px;
+	letter-spacing: -0.03em;
+}
+h1 .small {
+	font-weight: normal;
+	font-size: 14px;
+	color: #666;
+}
+h3.widget-type {
+	font-size: 16px;
+	color: #222;
+	margin-left: 0px;
+	padding-top: 16px;
+	border-top: 1px solid #ccc;
+}
+h3.widget-type:nth-of-type(1) {
+	border: none;
+}
+h4 {
+	font-weight: normal;
+	margin: 0px;
+	color: #222;
+}
+hr {
+}
+.nav-types {
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding-top: 10px;
+	padding-left:10px;
+	background-color: #f8f8f8;
+	margin-top: 4px;
+}
+.nav-types li {
+	margin: 4px;
+	font-size: 14px;
+	margin-left:6px;
+	font-weight:bold;
+}
+.nav-types p {
+	margin: 0;
+}
 
-  /* KPI row */
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-  .kpi { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 10px; padding: 14px 18px; }
-  .kpi-val { font-size: 28px; font-weight: 500; line-height: 1; color: #1a1a1a; }
-  .kpi-val span { font-size: 16px; color: #888; }
-  .kpi-lab { font-size: 11px; color: #888; margin-top: 5px; }
-
-  /* Chart grid */
-  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 16px 18px; }
-  .card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
-  .card-sub { font-size: 11px; color: #888; margin-bottom: 14px; line-height: 1.4; }
-  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
-  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #666; }
-  .leg-sq { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
-
-  /* Segment panel */
-  .seg-inner { display: flex; align-items: center; gap: 18px; height: 120px; }
-  .seg-legend { display: flex; flex-direction: column; gap: 8px; }
-  .seg-leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; }
-
-  /* Table */
-  .tbl-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 16px 18px; }
-  .tbl-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-  table { width: 100%; font-size: 12px; border-collapse: collapse; }
-  th { text-align: left; font-weight: 500; font-size: 11px; color: #888; padding: 0 12px 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
-  td { padding: 7px 12px 7px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  .name { font-weight: 500; }
-
-  /* Badges */
-  .pill { display: inline-block; font-size: 10.5px; font-weight: 500; padding: 2px 9px; border-radius: 20px; }
-  .hi  { background: #C0DD97; color: #3B6D11; }
-  .mid { background: #B5D4F4; color: #185FA5; }
-  .lo  { background: #F5C4B3; color: #993C1D; }
-  .yn-y { display: inline-block; background: #E1F5EE; color: #0F6E56; font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
-  .yn-n { display: inline-block; background: #FAECE7; color: #993C1D; font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
-  .dot { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; }
-  .d  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .d1 { background: #E24B4A; }
-  .d2 { background: #EF9F27; }
-  .d3 { background: #BA7517; }
-  .d4 { background: #1D9E75; }
-  .d5 { background: #085041; }
-  .fi-bar { display: inline-flex; align-items: center; gap: 5px; }
-  .fi-seg { height: 6px; border-radius: 2px; background: #7F77DD; }
+li {
+	list-style:none;
+	margin-left: 16px;
+	margin-top: 2px;
+  position: relative;
+}
+li a {
+	border-bottom: 1px solid rgba(0, 0, 0, .1);
+	text-decoration: none;
+}
+.author {
+	font-size: 11px;
+	color: #666;
+}
+.comment {
+}
+.comment li {
+	margin-bottom: 8px;
+	margin-top: 12px;
+}
+.comment blockquote {
+	margin-top: 4px;
+	margin-bottom: 0
+}
+.footer {
+	border-top: 1px solid #ccc;
+	font-size: 11px;
+	padding-top: 10px;
+	margin-top: 24px;
+	color: #333;
+	text-align: center;
+}
+.top {
+	text-align: right;
+	font-size: 11px;
+}
+.warning {
+  position: absolute;
+  left: -16px;
+  top: -1px;
+  height: 15px;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAIJJREFUeNpi/P//PwMpgOX+Qhl0MUEgvgvEykD8HllCMf4JAxMWQzqgmjqw2YCuQQmI06DsNCgfrwaYqelofKwajIE4FMqeBaVDoeJYNXTgCJgObBpcoBjZLwzY5JhwmH4Xly1M2NwJBIxofLj/mHC4/T8uv7AAcQU0oggBcKwDBBgAqKQWMqfFQygAAAAASUVORK5CYII=) no-repeat left center;
+  padding-left: 16px;
+  border: none;
+}
+#warn {
+  background: #fffed1;
+  border: 1px solid #ffc26a;
+  margin-left: 16px;
+  padding: 3px;
+  width: 470px;
+  position: relative;
+}
+#warn .warning {
+  top:2px;
+}
 </style>
+<title>MURAL HMW Session Export</title>
 </head>
 <body>
+<h1><a name="top"></a>HMW Session <span class="small">by Tatiana Postnikova</span></h1>
+<p>This HTML file contains all the content from the mural<strong> HMW Session</strong> until the export date.<br>
+  Export date: 4/28/2026 <br>
+  Mural URL: <a href="https://app.mural.co/t/uxdesign1403/m/uxdesign1403/1777157159542" target="_blank">https://app.mural.co/t/uxdesign1403/m/uxdesign1403/1777157159542</a> <br>
+</p>
 
-<h1>WhereWear – Participant Screening Dashboard &nbsp;<span style="font-size:13px;color:#888;font-weight:400">n = 13 · April 2026</span></h1>
-
-<!-- ── KPIs ── -->
-<div class="kpi-row">
-  <div class="kpi"><div class="kpi-val">3.8<span>/5</span></div><div class="kpi-lab">avg fashion interest · scale 1–5</div></div>
-  <div class="kpi"><div class="kpi-val">8</div><div class="kpi-lab">willing to rent ≥4 of 13</div></div>
-  <div class="kpi"><div class="kpi-val">8</div><div class="kpi-lab">willing to list ≥4 of 13</div></div>
-  <div class="kpi"><div class="kpi-val">6</div><div class="kpi-lab">rent ≥4 AND list ≥4</div></div>
+<div class="nav-types">
+  <p>Browse contents by type</p>
+  <ul>
+    
+    <li><a href="#sticker"></a></li>
+    
+    <li><a href="#comment">Comments</a></li>
+    
+    <li><a href="#image">Images</a></li>
+    
+    <li><a href="#sticky">Sticky Notes</a></li>
+    
+    <li><a href="#textbox">Text-Boxes</a></li>
+    
+  </ul>
 </div>
 
-<!-- ── Charts row 1 ── -->
-<div class="charts-row">
-  <div class="card">
-    <div class="card-title">Fashion interest distribution</div>
-    <div class="card-sub">Self-reported interest in fashion (1 = slightly, 5 = extremely)</div>
-    <div style="position:relative;height:170px"><canvas id="c1"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Willingness to rent vs. to list</div>
-    <div class="card-sub">Rent = borrow others' items · List = offer your own items for rent</div>
-    <div style="position:relative;height:170px"><canvas id="c2"></canvas></div>
-    <div class="legend">
-      <span class="leg"><span class="leg-sq" style="background:#1D9E75"></span>Willing to rent (borrow)</span>
-      <span class="leg"><span class="leg-sq" style="background:#7F77DD"></span>Willing to list (offer own)</span>
-    </div>
-  </div>
+
+
+  <h3 class="widget-type">
+    <a name="sticker"></a>
+  </h3>
+  <ul class="sticker">
+
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+    <li>
+    
+    </li>
+  
+  </ul>
+  <p class="top">
+    <a href="#top">Go to top</a>
+  </p>
+
+  <h3 class="widget-type">
+    <a name="comment">Comments</a>
+  </h3>
+  <ul class="comment">
+
+  
+    <li>
+    
+        "Audrey&#39;s idea"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:20:59 </span>
+        
+        
+    </li>
+  
+    <li>
+    
+        "Oxana&#39;s idea"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:22:19 </span>
+        
+        
+    </li>
+  
+    <li>
+    
+        "Audrey&#39;s idea"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:27:58 </span>
+        
+        
+    </li>
+  
+    <li>
+    
+        "All are Audrey&#39;s ideas"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:36:10 </span>
+        
+        
+    </li>
+  
+    <li>
+    
+        "All are Oxana&#39;s ideas"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:36:27 </span>
+        
+        
+    </li>
+  
+    <li>
+    
+        "these two are Oxana&#39;s ideas"
+        <span class='author'> by u374af90b75308463d64f3770 at 4/27/2026 10:37:51 </span>
+        
+        
+    </li>
+  
+  </ul>
+  <p class="top">
+    <a href="#top">Go to top</a>
+  </p>
+
+  <h3 class="widget-type">
+    <a name="image">Images</a>
+  </h3>
+  <ul class="image">
+
+  
+    <li>
+    
+        <a href="./image/uxdesign1403.0-1777284982319-0-1777284982262.svg" target='_blank'>./image/uxdesign1403.0-1777284982319-0-1777284982262.svg</a>
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+  </ul>
+  <p class="top">
+    <a href="#top">Go to top</a>
+  </p>
+
+  <h3 class="widget-type">
+    <a name="sticky">Sticky Notes</a>
+  </h3>
+  <ul class="sticky">
+
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Travel across the city only if the item is important for a specific event.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use rental mainly for special occasions, not everyday clothes.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use strong filters by size, style, brand, category, wedding, suit, classic or vintage.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Rent or lend themed items for specific parties, for example a cowboy hat.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Community can create value, but only if it is useful, local and low-effort.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Search by occasion: wedding, christening, gala dinner, themed party, holiday or bachelorette party.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show ratings, badges and reviews to confirm that the person has a reliable profile.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use insurance or deposit mechanisms to protect the renter if something is damaged during use.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Search by desired mood or level of extravagance: rhinestones, feathers, Greece holiday, evening look.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Build a full event outfit from available rental items: dress, shoes, bag, accessories.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Add lookbook-style outfit suggestions around a rented item.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Make availability immediately clear for the exact dates needed.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Enable try-on for occasion dresses where fit is critical.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Browse and book items in a destination city before arriving.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Rent clothes, bags and accessories locally when travelling instead of carrying a full wardrobe.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Guarantee high-quality cleaning before the item is rented.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show an active, experienced and clear user profile before the transaction.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let the company handle professional cleaning so items arrive ready to wear.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Define clear photo protocols showing details, condition, labels and quality.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Ask renters to photograph the item before sending it back.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use a deposit equal to the item value for risky or unique items.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show renter reviews and whether the event or use case feels legitimate.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use a deposit mechanism similar to Airbnb.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show material composition and item characteristics.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let the platform or lender manage cleaning, instead of trusting the renter to do it.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use AI to automatically create attractive item photos.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Reduce the burden of taking photos, uploading, packing and sending items.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users decide which categories feel acceptable to rent: coat yes, shoes no.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use likes, saves and notifications to create light engagement.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Encourage rental of items users still own but do not plan to wear soon.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use visible signals such as “cleaned”, “not worn”, or “ready to wear”.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Require photos in reviews, because written reviews alone are less reassuring.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show item condition clearly: almost new, frequently used, very worn, old.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Enable one-click listing: photograph, edit and publish with minimum effort.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users choose style interests during onboarding: vintage, luxury, evening wear.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Protect fragile, irreplaceable or emotionally valuable items with stricter rules.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use insurance or deposit supported by before-and-after item documentation.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show new items available nearby, for example within 500 meters.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create a Pinterest-like outfit-building space based on saved inspiration and wardrobe items.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show a local map of nearby people renting evening dresses, shoes, bags and accessories.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Document the initial and return condition of the item.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Help users separate emotional pieces from items they are ready to rent out.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Segment the community by style and taste.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Protect lenders through compensation for cleaning, repairs and damage.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create themed circles, for example a brides’ circle.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Add outfit inspiration: how to style items, combinations, shops and links.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users with similar taste co-buy an expensive item and share future access.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create “missions” where users request a missing item and others can contribute.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Allow users to rent out items before deciding whether to sell or give them away.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create “wine and swap” style events where people bring clothes, try them on and exchange.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Position rental as an alternative to selling for items no longer worn.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Offer delivery for renters and pickup from lender when convenient.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Offer storage or warehouse services where unused items can be kept and rented out.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users rent out only items they can emotionally part with.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Include optional dry-cleaning in the return process.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users retrieve stored items when they need them again.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Provide shared wardrobe storage for items users do not want to manage individually.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Allow flexible returns from another location, for example after a wedding trip.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create a drop-off / consignment model where the platform lists, rents, sells or exchanges items for the user.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Simplify collection and return so users do not need to cross the city.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Offer AI-generated listing photos.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Clothing is emotionally and personally sensitive, so users need control over what is shareable.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;The main barrier for lenders is not only risk, but the operational effort required.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Trust is the entry condition: without visible safeguards, users hesitate to rent or lend.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Rent for events, festivals, weddings or corporate occasions where she needs something outside her normal wardrobe.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Search for a specific item, for example “pleated skirt”, and see what is available in the city.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        ""
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        ""
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Rental is not perceived as a daily wardrobe habit, but as a solution for specific moments.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        ""
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        ""
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Reduce sending and logistics effort for users who travel often.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Offer both delivery and hand-to-hand options depending on distance and city context.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let users define a specific part of their wardrobe that they accept to rent out.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Add chat between users with similar size, style or accessory needs.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use Airbnb-like geography to show where items are located.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create personalised user profiles with age, profession or context to make the person feel real.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Build neighborhood-based communities because proximity increases trust.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Match users by body type, size and taste, not only by individual item.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "Let users choose a person/profile/bio first, then access their wardrobe."
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let lenders choose who handles cleaning, especially for valuable items.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Use Airbnb-like ratings to reassure lenders.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Access trend-led pieces visible on social media without buying them.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Rent costumes or special outfits for events, balls, parties or theatrical occasions.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Build trust through a small community where members can gradually know each other.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Create a small circle of 10–15 responsible people with similar style and compatible sizes.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Make cleaning rules transparent for renters.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "Enable aspirational rental of high-end items and accessories for the experience, not ownership."
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "Use insurance for rented-out items."
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "Show how many people have worn the item before."
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Show purchase date, brand, model, characteristics and original price.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+      
+      
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Let lenders choose the person based on profile, reviews and reason for renting.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+  </ul>
+  <p class="top">
+    <a href="#top">Go to top</a>
+  </p>
+
+  <h3 class="widget-type">
+    <a name="textbox">Text-Boxes</a>
+  </h3>
+  <ul class="textbox">
+
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#000000&#34;&gt;HOW MIGHT WE?&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by emilia4 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Group brainstorming workshop to open design opportunities without jumping too quickly to solutions.&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by emilia4 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;div&gt;&lt;span style=&#34;color:rgb(57, 57, 57)&#34;&gt;Created by&lt;/span&gt;&lt;/div&gt;"
+        <span class='author'> by emilia4 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Tatiana Postnikova&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by emilia4 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Veronique and Mayya&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Olga&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Nelly&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Alia&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Daria&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Audrey and Constance&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Oxana and Capitoline&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participants 2 and 11 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participant 3 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participant 4 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participant 5 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participant 7 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participants 9 and 10 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participants 6 and 8 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#e95e5e&#34;&gt;Klavdia&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span&gt;Participant 1 in the interview guide&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#000000&#34;&gt;HOW MIGHT WE&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span style=&#34;color:#1f1f1f&#34;&gt;Opportunities to enhance the WhereWear app&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span style=&#34;color:#000000&#34;&gt;INSIGHT&lt;/span&gt;&lt;/b&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;span style=&#34;color:#1f1f1f&#34;&gt;Core insights from the user research interviews&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span&gt;How might we &lt;/span&gt;&lt;/b&gt;&lt;span&gt;position peer-to-peer rental as a simple, desirable and safe way to access exceptional pieces for specific life moments?&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span&gt;How might we &lt;/span&gt;&lt;/b&gt;&lt;span&gt;design a visible trust system that reassures both renters and lenders before, during and after each rental?&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span&gt;How might we &lt;/span&gt;&lt;/b&gt;&lt;span&gt;reduce the effort of lending through assisted listing, AI-generated photos, integrated cleaning, delivery support, storage or concierge-style services?&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span&gt;How might we &lt;/span&gt;&lt;/b&gt;&lt;span&gt;help users identify which items feel safe to share without threatening their attachment, identity or sense of control?&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+    <li>
+    
+        "&lt;html v=&#34;1&#34;&gt;&lt;div&gt;&lt;b&gt;&lt;span&gt;How might we &lt;/span&gt;&lt;/b&gt;&lt;span&gt;build a community that feels useful rather than demanding — based on proximity, style compatibility, inspiration and trust?&lt;/span&gt;&lt;/div&gt;&lt;/html&gt;"
+        <span class='author'> by u374af90b75308463d64f3770 </span>
+        
+    </li>
+  
+  </ul>
+  <p class="top">
+    <a href="#top">Go to top</a>
+  </p>
+
+
+
+<div class="footer">
+	<p><a href="https://app.mural.co" target="_blank">  <img src="https://assets-global.website-files.com/62e11362da2667ac3d0e6ed5/6310bb11874afdba54b2cbf7_mural-logo-color.svg" alt="Mural" width="145" style="outline: none; width: 180px; margin-top: 20px" /></a></p>
+  	<p>This file contains a copy of all assets and links included in the mural "HMW Session" created by Tatiana Postnikova, using <a href="https://app.mural.co" target="_blank">https://app.mural.co</a><br>
+    A preview of the mural design is not included. The mural layout information is not archived.<br>
+    <strong><br>
+    Your mural could include confidential information. Be careful when storing, sending or uploading it to any other services.</strong></p>
 </div>
-
-<!-- ── Charts row 2 ── -->
-<div class="charts-row">
-  <div class="card">
-    <div class="card-title">Purchase &amp; sales history on 2M</div>
-    <div class="card-sub">Prior engagement with the platform as buyer or seller</div>
-    <div style="position:relative;height:120px"><canvas id="c3"></canvas></div>
-    <div class="legend">
-      <span class="leg"><span class="leg-sq" style="background:#1D9E75"></span>Yes</span>
-      <span class="leg"><span class="leg-sq" style="background:#F09595"></span>No</span>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Participant segment</div>
-    <div class="card-sub">Composite score: interest + rent + list + transaction history</div>
-    <div class="seg-inner">
-      <div style="position:relative;height:120px;width:120px;flex-shrink:0"><canvas id="c4"></canvas></div>
-      <div class="seg-legend">
-        <span class="seg-leg"><span class="leg-sq" style="background:#1D9E75;width:10px;height:10px"></span>High value (score ≥14) · <strong>6</strong></span>
-        <span class="seg-leg"><span class="leg-sq" style="background:#7F77DD;width:10px;height:10px"></span>Mid-range (score 10–13) · <strong>5</strong></span>
-        <span class="seg-leg"><span class="leg-sq" style="background:#D3D1C7;width:10px;height:10px"></span>Low potential (score &lt;10) · <strong>2</strong></span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── Table ── -->
-<div class="tbl-card">
-  <div class="tbl-title">Individual respondent profiles</div>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Fashion interest</th>
-        <th>Bought 2M</th>
-        <th>Sold</th>
-        <th>Ready to rent</th>
-        <th>Ready to list</th>
-        <th>Tier</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td style="color:#aaa;font-size:11px">1</td><td class="name">Klavdia</td><td><span class="fi-bar"><span class="fi-seg" style="width:32px"></span></span> Very</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d3"></span>Neutral</span></td><td><span class="dot"><span class="d d2"></span>Little</span></td><td><span class="pill mid">Mid-range</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">2</td><td class="name">Veronique</td><td><span class="fi-bar"><span class="fi-seg" style="width:24px"></span></span> Moderately</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="dot"><span class="d d2"></span>Little</span></td><td><span class="pill mid">Mid-range</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">3</td><td class="name">Olga</td><td><span class="fi-bar"><span class="fi-seg" style="width:40px"></span></span> Extremely</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">4</td><td class="name">Nelly</td><td><span class="fi-bar"><span class="fi-seg" style="width:32px"></span></span> Very</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="dot"><span class="d d3"></span>Neutral</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">5</td><td class="name">Alia</td><td><span class="fi-bar"><span class="fi-seg" style="width:32px"></span></span> Very</td><td><span class="yn-n">No</span></td><td><span class="yn-n">No</span></td><td><span class="dot"><span class="d d1"></span>Not at all</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="pill lo">Low potential</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">6</td><td class="name">Oxana</td><td><span class="fi-bar"><span class="fi-seg" style="width:40px"></span></span> Extremely</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">7</td><td class="name">Daria</td><td><span class="fi-bar"><span class="fi-seg" style="width:40px"></span></span> Extremely</td><td><span class="yn-n">No</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">8</td><td class="name">Capitoline</td><td><span class="fi-bar"><span class="fi-seg" style="width:24px"></span></span> Moderately</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">9</td><td class="name">Audrey</td><td><span class="fi-bar"><span class="fi-seg" style="width:24px"></span></span> Moderately</td><td><span class="yn-n">No</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d4"></span>Rather yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="pill mid">Mid-range</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">10</td><td class="name">Constance</td><td><span class="fi-bar"><span class="fi-seg" style="width:24px"></span></span> Moderately</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d3"></span>Neutral</span></td><td><span class="dot"><span class="d d2"></span>Little</span></td><td><span class="pill mid">Mid-range</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">11</td><td class="name">Mayya</td><td><span class="fi-bar"><span class="fi-seg" style="width:32px"></span></span> Very</td><td><span class="yn-n">No</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="pill hi">High value</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">12</td><td class="name">Julie S.</td><td><span class="fi-bar"><span class="fi-seg" style="width:32px"></span></span> Very</td><td><span class="yn-y">Yes</span></td><td><span class="yn-y">Yes</span></td><td><span class="dot"><span class="d d2"></span>Little</span></td><td><span class="dot"><span class="d d5"></span>Absolutely</span></td><td><span class="pill mid">Mid-range</span></td></tr>
-      <tr><td style="color:#aaa;font-size:11px">13</td><td class="name">Karolina</td><td><span class="fi-bar"><span class="fi-seg" style="width:16px;background:#AFA9EC"></span></span> Little</td><td><span class="yn-y">Yes</span></td><td><span class="yn-n">No</span></td><td><span class="dot"><span class="d d3"></span>Neutral</span></td><td><span class="dot"><span class="d d3"></span>Neutral</span></td><td><span class="pill lo">Low potential</span></td></tr>
-    </tbody>
-  </table>
-</div>
-
-<script>
-const txt = 'rgba(0,0,0,0.45)';
-const grid = 'rgba(0,0,0,0.07)';
-const baseScales = {
-  x: { ticks: { color: txt, font: { size: 11 } }, grid: { color: grid } },
-  y: { ticks: { color: txt, font: { size: 11 } }, grid: { color: grid } }
-};
-
-// Fashion interest
-new Chart(document.getElementById('c1'), {
-  type: 'bar',
-  data: {
-    labels: ['2 – Little', '3 – Moderate', '4 – Very', '5 – Extremely'],
-    datasets: [{ data: [1, 4, 5, 3], backgroundColor: ['#AFA9EC', '#7F77DD', '#7F77DD', '#534AB7'], borderRadius: 4, borderSkipped: false }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: txt, font: { size: 10 } }, grid: { color: grid } }, y: { min: 0, max: 6, ticks: { stepSize: 1, color: txt, font: { size: 11 } }, grid: { color: grid } } } }
-});
-
-// Rent vs List
-new Chart(document.getElementById('c2'), {
-  type: 'bar',
-  data: {
-    labels: ['1', '2', '3', '4', '5'],
-    datasets: [
-      { label: 'Rent', data: [1, 1, 3, 3, 5], backgroundColor: '#1D9E75', borderRadius: 3, borderSkipped: false },
-      { label: 'List', data: [0, 3, 2, 3, 5], backgroundColor: '#7F77DD', borderRadius: 3, borderSkipped: false }
-    ]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: txt, font: { size: 11 } }, grid: { color: grid } }, y: { min: 0, max: 6, ticks: { stepSize: 1, color: txt, font: { size: 11 } }, grid: { color: grid } } } }
-});
-
-// Bought / Sold horizontal
-new Chart(document.getElementById('c3'), {
-  type: 'bar',
-  data: {
-    labels: ['Already bought on 2M', 'Already sold on 2M'],
-    datasets: [
-      { label: 'Yes', data: [9, 11], backgroundColor: '#1D9E75', borderRadius: 3, borderSkipped: false },
-      { label: 'No',  data: [4, 2],  backgroundColor: '#F09595', borderRadius: 3, borderSkipped: false }
-    ]
-  },
-  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 13, stacked: true, ticks: { stepSize: 2, color: txt, font: { size: 10 } }, grid: { color: grid } }, y: { stacked: true, ticks: { color: txt, font: { size: 10 } }, grid: { display: false } } } }
-});
-
-// Donut
-new Chart(document.getElementById('c4'), {
-  type: 'doughnut',
-  data: {
-    labels: ['High value', 'Mid-range', 'Low potential'],
-    datasets: [{ data: [6, 5, 2], backgroundColor: ['#1D9E75', '#7F77DD', '#D3D1C7'], borderWidth: 0 }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { display: false } } }
-});
-</script>
 </body>
 </html>
