@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhereWear V1 — Prototype Test Outcomes</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --taupe:#a4866f; --taupe-d:#9c7559;
+  --sage:#8a9a7b; --sage-d:#6f7d5e;
+  --gold:#b8893d;
+  --slate:#5a6472;
+  --muted:#8a7f70;
+  --border:#e5ded3;
+  --ink:#2b2620;
+  --bad:#a8583f;
+  --ok:#6f7d5e;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --sans:'Avenir Next','Century Gothic',CenturyGothic,Futura,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--serif);}
+::selection{background:var(--gold);color:#fff}
+.wrap{max-width:1180px;margin:0 auto;padding:56px 32px 40px;}
+a{color:inherit}
+
+/* ---------- header ---------- */
+.eyebrow{font-family:var(--sans);text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--taupe-d);font-weight:600;}
+h1{font-family:var(--sans);font-weight:700;font-size:34px;line-height:1.15;margin:10px 0 6px;color:var(--ink);letter-spacing:-.01em;}
+.subtitle{font-size:16px;color:var(--slate);margin:0 0 18px;}
+.methnote{font-size:12.5px;color:var(--muted);font-style:italic;border-left:2px solid var(--border);padding-left:12px;max-width:760px;line-height:1.55;}
+.methnote b{color:var(--taupe-d);font-style:normal;}
+
+header{border-bottom:1px solid var(--border);padding-bottom:28px;margin-bottom:36px;}
+
+/* ---------- section titles ---------- */
+h2{font-family:var(--sans);font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--taupe-d);font-weight:700;margin:0 0 18px;}
+section{margin-bottom:52px;}
+
+/* ---------- score overview ---------- */
+.overview{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;}
+@media (max-width:860px){.overview{grid-template-columns:1fr}}
+.susbars{display:flex;flex-direction:column;gap:14px;}
+.susrow{display:grid;grid-template-columns:150px 1fr 56px;align-items:center;gap:12px;}
+.susrow .plabel{font-family:var(--sans);font-size:12.5px;color:var(--slate);}
+.bartrack{position:relative;height:20px;background:#f7f4ee;border-radius:3px;overflow:visible;border:1px solid var(--border);}
+.barfill{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(90deg,var(--taupe),var(--sage));transition:width .8s cubic-bezier(.22,.9,.3,1);}
+.benchmark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:1.5px dashed var(--slate);opacity:.6;}
+.benchmark .bmlabel{position:absolute;top:-16px;left:4px;font-family:var(--sans);font-size:9px;color:var(--slate);white-space:nowrap;}
+.susrow .val{font-family:var(--sans);font-weight:700;color:var(--gold);font-size:15px;text-align:right;}
+.avgline{margin-top:6px;padding-top:14px;border-top:1px solid var(--border);display:grid;grid-template-columns:150px 1fr 56px;align-items:center;gap:12px;}
+.avgline .plabel{font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--ink);}
+
+.wwmini{display:flex;flex-direction:column;gap:10px;}
+.wwrow{display:grid;grid-template-columns:150px 1fr 40px;align-items:center;gap:12px;}
+.wwrow .plabel{font-family:var(--sans);font-size:12px;color:var(--slate);}
+.dots{display:flex;gap:5px;}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--border);}
+.dot.on{background:var(--sage-d);}
+.wwrow .val{font-family:var(--sans);font-size:12.5px;color:var(--gold);font-weight:700;text-align:right;}
+.miniLabel{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:8px;}
+
+/* ---------- filters ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px;}
+.chip{font-family:var(--sans);font-size:11.5px;letter-spacing:.03em;padding:6px 13px;border:1px solid var(--border);border-radius:20px;background:#fff;color:var(--slate);cursor:pointer;transition:.15s;user-select:none;}
+.chip:hover{border-color:var(--taupe);}
+.chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+.chip.pactive{background:var(--sage-d);border-color:var(--sage-d);color:#fff;}
+
+/* ---------- matrix ---------- */
+.matrixwrap{overflow-x:auto;border:1px solid var(--border);border-radius:4px;}
+table.matrix{border-collapse:collapse;width:100%;min-width:760px;font-size:12.5px;}
+table.matrix th, table.matrix td{padding:0;border-bottom:1px solid var(--border);}
+table.matrix thead th{font-family:var(--sans);font-size:10.5px;color:#fff;background:var(--ink);padding:10px 8px;text-align:center;font-weight:600;white-space:nowrap;}
+table.matrix thead th.itemcol{background:var(--taupe-d);}
+table.matrix thead th:first-child{text-align:left;background:var(--ink);position:sticky;left:0;z-index:2;}
+table.matrix tbody th{font-family:var(--serif);font-size:12.5px;text-align:left;padding:9px 12px;color:var(--ink);background:#fbf9f5;position:sticky;left:0;border-right:1px solid var(--border);white-space:normal;max-width:340px;}
+table.matrix tbody th .qcode{font-family:var(--sans);font-weight:700;color:var(--taupe-d);font-size:10.5px;margin-right:6px;}
+table.matrix tr.wwrow-sep th, table.matrix tr.wwrow-sep td{border-top:2px solid var(--taupe-d);}
+td.cell{text-align:center;cursor:pointer;position:relative;padding:9px 4px;transition:.12s;}
+td.cell:hover{outline:2px solid var(--gold);outline-offset:-2px;}
+td.cell .n{font-family:var(--sans);font-weight:700;font-size:13px;}
+td.cell.s1,td.cell.s2{background:#f3e4de;color:var(--bad);}
+td.cell.s3{background:#f4f1ea;color:var(--muted);}
+td.cell.s4,td.cell.s5{background:#e9efe4;color:var(--ok);}
+
+.legend{display:flex;gap:16px;align-items:center;margin-top:10px;font-family:var(--sans);font-size:10.5px;color:var(--muted);}
+.legend .sw{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px;}
+
+#evidencePanel{margin-top:16px;padding:16px 18px;background:#fbf9f5;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:2px;font-size:13.5px;line-height:1.6;display:none;}
+#evidencePanel.show{display:block;}
+#evidencePanel .ehead{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--taupe-d);margin-bottom:6px;}
+#evidencePanel .escore{font-family:var(--sans);font-weight:700;color:var(--gold);}
+
+/* ---------- quant cards ---------- */
+.qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;}
+.qcard{border:1px solid var(--border);border-radius:4px;padding:16px 18px;background:#fbf9f5;}
+.qcard .pname{font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--ink);margin-bottom:10px;}
+.qstat{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;color:var(--slate);}
+.qstat b{color:var(--ink);font-weight:600;}
+.qnote{margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.5;font-style:italic;}
+.badge{font-family:var(--sans);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:10px;background:var(--sage-d);color:#fff;}
+
+/* ---------- qualitative ---------- */
+.searchbox{width:100%;max-width:360px;padding:9px 13px;border:1px solid var(--border);border-radius:20px;font-family:var(--serif);font-size:13px;margin-bottom:20px;outline:none;}
+.searchbox:focus{border-color:var(--taupe);}
+.qualgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
+.qualcard{border:1px solid var(--border);border-radius:4px;padding:18px;background:#fff;}
+.qualcard .pname{font-family:var(--sans);font-weight:700;font-size:12.5px;margin-bottom:4px;}
+.qualcard .emo{font-size:12px;color:var(--slate);font-style:italic;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.qualcard blockquote{margin:0 0 10px;padding-left:12px;border-left:2px solid var(--gold);font-size:13px;line-height:1.5;color:var(--ink);}
+.qualcard .sugg{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;}
+.qualcard .sugg b{color:var(--taupe-d);font-family:var(--sans);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:4px;}
+.hide{display:none !important;}
+
+/* ---------- footer ---------- */
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">WhereWear · V1 Prototype · Sophie Laurent persona</div>
+  <h1>Prototype test outcomes</h1>
+  <p class="subtitle">Scenario: rent a dress for a friend's wedding — 5 participants, 20–29 Jun 2026</p>
+  <p class="methnote"><b>Read before citing these numbers.</b> None of the 5 sessions include a self-administered
+  questionnaire — recordings capture the moderated think-aloud task only. Every score below is a researcher-inferred
+  estimate of how each participant would likely have answered, based on what they said and did. Click any cell in
+  the matrix for the transcript evidence behind it.</p>
+</header>
+
+<section id="sec-overview">
+  <h2>SUS score by participant</h2>
+  <div class="overview">
+    <div>
+      <div class="susbars" id="susbars"></div>
+      <div class="avgline"><span class="plabel">Average (n=5)</span><div></div><span class="val" id="avgval"></span></div>
+    </div>
+    <div>
+      <h2 style="margin-bottom:12px">WhereWear items — average /5</h2>
+      <div class="wwmini" id="wwmini"></div>
+      <div class="miniLabel">Q11–Q14: find appropriate piece · enough fit info · trust owner · terms fair &amp; clear</div>
+    </div>
+  </div>
+</section>
+
+<section id="sec-matrix">
+  <h2>Item-by-item breakdown</h2>
+  <div class="controls" id="groupControls"></div>
+  <div class="matrixwrap">
+    <table class="matrix" id="matrixTable"></table>
+  </div>
+  <div class="legend">
+    <span><span class="sw" style="background:#f3e4de"></span>1–2 · low</span>
+    <span><span class="sw" style="background:#f4f1ea"></span>3 · neutral</span>
+    <span><span class="sw" style="background:#e9efe4"></span>4–5 · high</span>
+    <span style="margin-left:auto">Q1–Q10 System Usability Scale · Q11–Q14 WhereWear-specific</span>
+  </div>
+  <div id="evidencePanel"></div>
+</section>
+
+<section id="sec-quant">
+  <h2>Quantitative</h2>
+  <div class="qgrid" id="quantGrid"></div>
+</section>
+
+<section id="sec-qual">
+  <h2>Qualitative</h2>
+  <input class="searchbox" id="qualSearch" placeholder="Search quotes and suggestions…">
+  <div class="qualgrid" id="qualGrid"></div>
+</section>
+
+
+
+</div>
+
+<script id="ww-data" type="application/json">{"participants": [{"id": "553293903", "date": "2026-06-20", "short": "P1", "label": "P1 · 553293903 · 20 Jun"}, {"id": "553695971", "date": "2026-06-22", "short": "P2", "label": "P2 · 553695971 · 22 Jun"}, {"id": "553744729", "date": "2026-06-22", "short": "P3", "label": "P3 · 553744729 · 22 Jun"}, {"id": "555796148", "date": "2026-06-26", "short": "P4", "label": "P4 · 555796148 · 26 Jun"}, {"id": "556464047", "date": "2026-06-29", "short": "P5", "label": "P5 · 556464047 · 29 Jun"}], "items": [{"code": "Q1", "group": "SUS", "polarity": "pos", "text": "I think that I would like to use this service frequently."}, {"code": "Q2", "group": "SUS", "polarity": "neg", "text": "I found the service unnecessarily complex."}, {"code": "Q3", "group": "SUS", "polarity": "pos", "text": "I thought the service was easy to use."}, {"code": "Q4", "group": "SUS", "polarity": "neg", "text": "I think that I would need the support of a technical person to be able to use this service."}, {"code": "Q5", "group": "SUS", "polarity": "pos", "text": "I found the various functions in this service were well integrated."}, {"code": "Q6", "group": "SUS", "polarity": "neg", "text": "I thought there was too much inconsistency in this service."}, {"code": "Q7", "group": "SUS", "polarity": "pos", "text": "I would imagine that most people would learn to use this service very quickly."}, {"code": "Q8", "group": "SUS", "polarity": "neg", "text": "I found the service very cumbersome to use."}, {"code": "Q9", "group": "SUS", "polarity": "pos", "text": "I felt very confident using the service."}, {"code": "Q10", "group": "SUS", "polarity": "neg", "text": "I needed to learn a lot of things before I could get going with this service."}, {"code": "Q11", "group": "WW", "polarity": "pos", "text": "I felt confident that I could find a piece appropriate for my occasion."}, {"code": "Q12", "group": "WW", "polarity": "pos", "text": "I had enough information to decide whether the piece would fit me."}, {"code": "Q13", "group": "WW", "polarity": "pos", "text": "I trusted the owner enough to commit to the rental."}, {"code": "Q14", "group": "WW", "polarity": "pos", "text": "The rental terms (deposit, cleaning, return) felt fair and clear."}], "scores": {"553293903": [4, 3, 4, 1, 3, 3, 3, 2, 3, 3, 4, 2, 3, 2], "553695971": [3, 2, 4, 1, 3, 4, 4, 2, 4, 3, 4, 4, 4, 2], "553744729": [4, 1, 5, 1, 4, 1, 5, 1, 5, 2, 5, 5, 5, 4], "555796148": [3, 4, 3, 2, 2, 4, 2, 3, 3, 3, 3, 2, 3, 2], "556464047": [3, 4, 2, 4, 2, 3, 2, 3, 2, 4, 3, 2, 3, 3]}, "evidence": {"553293903": {"Q1": "Engaged, constructive tone throughout (offers her own feature ideas unprompted); no explicit ‘I’d use this often’ statement, so kept moderate rather than high.", "Q2": "Several specific ‘confusing’/‘misleading’ moments (login vs. sign-up ambiguity, per-day vs. per-rental price) but she still self-navigated the whole flow — partial, not broad, complexity.", "Q3": "“Okay. No problem.” and steady progress through the whole flow, cancel-booking and order-history included, without getting stuck.", "Q4": "Entire session is a self-directed monologue; she resolves her own confusion out loud and never asks for help.", "Q5": "Names several gaps between features (no localized sizing, no brand name field, no usage rules) that read as pieces not yet joined up.", "Q6": "“It's, in theory, it's it's a bit but it's still 65” — the fee breakdown didn't visibly add up to her.", "Q7": "Confusion from an unusually thorough, professional user suggests a less expert user would need even more explanation.", "Q8": "No repeated failed actions on the core path; friction is about missing information, not effortful interaction.", "Q9": "Confident, directive language throughout (“I would...”, “I click...”), with pockets of explicit uncertainty on sizing/brand.", "Q10": "Had to infer a lot of unstated logic (pricing math, cleaning inclusion, cancellation date) on her own.", "Q11": "Found, filtered and fully evaluated a dress end to end; wanted more filters (brand, fabric, weather) to be fully confident.", "Q12": "“I have no idea what I am... I need to measure myself” — no size-standard conversion, explicit fit-confidence gap.", "Q13": "No distrust of the specific owner; wants platform-level guarantees (insurance, quality control) before fully committing — a system-trust gap more than an owner-trust one.", "Q14": "“Is it, like, correct, this price?” — deposit/service-fee breakdown questioned explicitly; wanted terms explained before booking, not just at booking."}, "553695971": {"Q1": "Positive overall (“I think it's easy... everything else is sort of smooth”) but no explicit frequency statement.", "Q2": "Explicitly frames the experience as easy overall, with two specific, named exceptions — not broad complexity.", "Q3": "Self-report: “I think it's, easy... Everything else is sort of smooth.”", "Q4": "No help requested; voices confusion aloud (that's the method) but resolves it herself.", "Q5": "“This was not very intuitive for me” re: locating the price filter after size/scroll.", "Q6": "“Why is it 65? It was, I think, 20... not clear what's the logic” plus “What the hell is service fee?” said twice, unprompted.", "Q7": "Her own framing (“I think it's easy”) suggests most people would pick it up, net of the two fee surprises.", "Q8": "Flow itself wasn't laborious once filters were found; no repeated failed taps.", "Q9": "Directive, confident phrasing throughout (“I would just...”, “I can filter...”).", "Q10": "Some self-teaching needed on filters and the price jump, but not extensive.", "Q11": "“So I think it's easy” — completed smoothly end to end.", "Q12": "Engaged fully with size/measurements/fit-proof panel; no fit complaint voiced.", "Q13": "“Owner renting is good, since 2023. Good amount of rentals.” — explicit positive trust signal, unprompted.", "Q14": "Named pain point of the whole session: deposit + “what the hell is service fee” + delivery ‘kind of expensive’, flagged as the top two surprises in her own debrief."}, "553744729": {"Q1": "No explicit frequency statement, but the whole session is friction-free and enthusiastic; scored on the strength of that overall experience.", "Q2": "Essentially zero complexity complaints across the whole journey.", "Q3": "Continuous “okay / very nice / perfect / everything is clear” throughout; fastest, smoothest of the five sessions.", "Q4": "No help needed at any point; moves through independently start to finish.", "Q5": "Filters, fit summary, price, cancellation policy all read as one coherent flow with no named gaps.", "Q6": "No inconsistency flagged anywhere, including the 20/night → 65-for-3-days math that confused two other participants — she reads it as “perfect... because of my budget.”", "Q7": "Given the ease and pace of this session, plausibly the easiest for a new user to pick up of the five.", "Q8": "One tiny hiccup (a swatch “not clickable”, immediately worked around) — not cumbersome.", "Q9": "Decisive, confident language throughout (“I think that, now I need to select...”, “perfect choice”).", "Q10": "Very little visible learning curve; fluent from the first screen.", "Q11": "Filtered by size, dates, price and location without friction, arrived at a dress she liked directly.", "Q12": "“My measurements fit to these measurements... ideal, good fit. Everything is good.”", "Q13": "“The opinions and the reviews are very important... 4.8. So very nice” re: owner/style profile.", "Q14": "“The price, perfect... everything here” — terms accepted without objection (deposit mention brief/neutral rather than enthusiastic, hence 4 not 5)."}, "555796148": {"Q1": "No explicit statement; mixed experience (real friction + constructive suggestions rather than rejection) — kept neutral.", "Q2": "Multiple distinct friction points: event-type mis-click, a price figure that didn't track (“110 a night” vs. “300 and 30”), non-working size selector.", "Q3": "Completed the booking, but with visible friction at several distinct steps rather than a smooth run.", "Q4": "Self-resolved everything without asking for direct help; scored low-but-not-lowest given the number of dead ends worked around alone.", "Q5": "Explicitly asked for things that don't exist yet: owner's other items, self-drop-off option, a cart for multiple pieces.", "Q6": "Price figures didn't visibly reconcile for her, similar pattern to two other participants' pricing confusion.", "Q7": "“If you're actually sitting with the phone in your hand, I don't think you would actually scroll” — a real discoverability problem for average users, not just her.", "Q8": "“It doesn't do anything” (size selector) and “That doesn't work” (another control) — some cumbersome moments, not pervasive.", "Q9": "Pushed through and completed with decisive suggestions, but voiced genuine uncertainty at several points (“I don't know. Is that an option?”).", "Q10": "Had to discover scroll behaviour and work around non-responsive controls on her own.", "Q11": "Completed, but the session opens with a mis-click between ‘wedding’ and ‘wedding guest’ event types.", "Q12": "“I still can't do my size, but okay” — explicit, unresolved sizing friction.", "Q13": "Wanted more owner context (“could I say see more items by this rental person?”) not available; reviews themselves read positively.", "Q14": "Guessed rather than confirmed the cancellation policy (“maybe that would be cancellation policy”); pricing display was confusing."}, "556464047": {"Q1": "No clear statement either way; broken/hesitant English throughout makes intent hard to read — kept neutral.", "Q2": "Frequent need to check nearly every step (“Correct?”) suggests the flow felt complex — may partly be a language-barrier effect (see note).", "Q3": "Completed, but with heavy step-by-step scaffolding rather than fluent, independent use.", "Q4": "Strongest need-for-support signal of the five participants: near-constant confirmation-seeking with the moderator across the whole session.", "Q5": "A broken image (“We can't see any image”) and a non-responsive control (“This will also not select”) both experienced directly.", "Q6": "Some inconsistency implied (broken image, unclear ‘not within stain’ size/availability moment) but evidence is thinner/harder to parse than for other participants.", "Q7": "Given how much reassurance she needed step by step, less confident an average user would move as slowly — though confounded with the language barrier.", "Q8": "A couple of repeated failed selection attempts (“This will also not select”).", "Q9": "The pervasive “Correct?” checking is itself the clearest low-confidence signal in the whole dataset.", "Q10": "Needed continuous moderator scaffolding to get through the flow.", "Q11": "Completed (booking confirmed) but with real uncertainty at mode- and event-type selection.", "Q12": "Fit/size detail barely discussed explicitly; a broken product image limited what she could evaluate — low-evidence estimate.", "Q13": "No explicit owner-trust commentary in either direction in this transcript — low-evidence, kept neutral.", "Q14": "Budget was confirmed as a step but no explicit reaction to deposit/cleaning/return terms — low-evidence, kept neutral."}}, "quantitative": {"553293903": {"success": "Completed", "time": "≈27m 44s (00:00:06–00:27:50)", "errors": 4, "prompts": null, "note": "Very thorough session; kept going past booking into cancel-booking and order-history exploration."}, "553695971": {"success": "Completed", "time": "≈8m 31s (00:00:02–00:08:33)", "errors": 4, "prompts": null, "note": "Budget filter unresponsive, couldn't set km radius, price jump 20→65 unclear."}, "553744729": {"success": "Completed", "time": "≈7m 26s task; ≈12m 35s incl. ~4.5min briefing", "errors": 1, "prompts": null, "note": "Smoothest session of the five. One swatch not clickable, resolved immediately."}, "555796148": {"success": "Completed", "time": "≈7m 20s captured — transcript cuts off, likely a floor", "errors": 5, "prompts": null, "note": "Event-type mis-click, price figures didn't reconcile, size selector unresponsive, ended mid-flow adding a 2nd item."}, "556464047": {"success": "Completed", "time": "≈7m 14s captured — transcript cuts off, likely a floor", "errors": 4, "prompts": null, "note": "Broken image, one unresponsive control, unclear availability moment. Near-constant confirmation-seeking — language-barrier flag."}}, "qualitative": {"553293903": {"quotes": ["Here you put €65 parental. But, I mean, if I need it for a week, is it still 65?", "I would also, like, this insurance fee... this would guarantee that what I receive is good. If not, I will give it back.", "I have no idea what I am. Like, I look at chest 96, and I say, god, what am I?"], "emotion": "Engaged, constructive scrutiny — not frustrated, but repeatedly surfaces gaps.", "suggestions": "Localize sizing (US/UK/EU/cm toggle); show brand name in title; clarify cleaning/service fee inclusions before booking; add usage rules (indoor/outdoor, pets, smoking); optional insurance/quality-guarantee fee; renter photos on real bodies; adjustable-radius slider instead of presets."}, "553695971": {"quotes": ["What the hell is service fee?", "I'm only finding it out here that I need to pay deposit.", "I think it's easy... Everything else is sort of smooth."], "emotion": "Confident and positive overall, with a sharp frustration spike at the fee breakdown.", "suggestions": "Surface deposit/delivery/service-fee total earlier in the flow, not only at the booking screen; make the price filter easier to find."}, "553744729": {"quotes": ["The opinions and the reviews are very important... 4.8. So very nice.", "Everything is clear here... I will have my perfect dress for the wedding."], "emotion": "Consistently confident and positive — the smoothest, most delighted session of the five.", "suggestions": "None volunteered — no friction surfaced to prompt a suggestion."}, "555796148": {"quotes": ["I think it would be helpful to have a bar on the side if there's scrollable options... if you're actually sitting with the phone in your hand, I don't think you would actually scroll.", "I still can't do my size, but okay.", "I would like to have sort of a shopping cart or something with the things I've already added. So I don't know how to restart."], "emotion": "Hesitant but persistent — works around dead ends rather than giving up.", "suggestions": "Visible scroll indicator on filter/option panels; self-drop-off delivery option; link to ‘more items by this owner’; multi-item cart."}, "556464047": {"quotes": ["This is a blank one. Okay? We can't see any image. Correct? For now?", "So whenever I click, I need to tell you that why and I need to click here to see this one, like that. Correct?", "This will also not select."], "emotion": "Low confidence, frequent confirmation-seeking — read together with the language-barrier flag.", "suggestions": "Fix broken product-image loading; make unavailable/unselectable options visibly disabled rather than silently inert."}}, "susScores": {"553293903": 62.5, "553695971": 65.0, "553744729": 92.5, "555796148": 42.5, "556464047": 32.5}, "wwAvg": {"553293903": 2.75, "553695971": 3.5, "553744729": 4.75, "555796148": 2.5, "556464047": 2.75}, "overallAvg": 59.0}</script>
+<script>
+const DATA = JSON.parse(document.getElementById('ww-data').textContent);
+const { participants, items, scores, evidence, quantitative, qualitative, susScores, wwAvg, overallAvg } = DATA;
+
+function esc(s){return (s+"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* ---------- SUS bars ---------- */
+const susbars = document.getElementById('susbars');
+const maxScore = 100, benchmark = 68;
+participants.forEach(p=>{
+  const v = susScores[p.id];
+  const row = document.createElement('div');
+  row.className = 'susrow';
+  row.innerHTML = `
+    <span class="plabel">${esc(p.label)}</span>
+    <div class="bartrack">
+      <div class="benchmark" style="left:${benchmark}%"><span class="bmlabel">benchmark 68</span></div>
+      <div class="barfill" style="width:0%" data-w="${v}"></div>
+    </div>
+    <span class="val">${v}</span>`;
+  susbars.appendChild(row);
+});
+document.getElementById('avgval').textContent = overallAvg;
+requestAnimationFrame(()=>setTimeout(()=>{
+  document.querySelectorAll('.barfill').forEach(el=>{ el.style.width = el.dataset.w + '%'; });
+},60));
+
+/* ---------- WW mini ---------- */
+const wwmini = document.getElementById('wwmini');
+participants.forEach(p=>{
+  const v = wwAvg[p.id];
+  const filled = Math.round(v);
+  let dots = '';
+  for(let i=1;i<=5;i++) dots += `<span class="dot ${i<=filled?'on':''}"></span>`;
+  const row = document.createElement('div');
+  row.className = 'wwrow';
+  row.innerHTML = `<span class="plabel">${esc(p.label)}</span><div class="dots">${dots}</div><span class="val">${v.toFixed(2)}</span>`;
+  wwmini.appendChild(row);
+});
+
+/* ---------- filters state ---------- */
+let groupFilter = 'ALL';
+let activeParticipants = new Set(participants.map(p=>p.id));
+
+const groupControls = document.getElementById('groupControls');
+['ALL','SUS','WW'].forEach(g=>{
+  const chip = document.createElement('div');
+  chip.className = 'chip' + (g===groupFilter ? ' active' : '');
+  chip.textContent = g==='ALL' ? 'All items' : (g==='SUS' ? 'SUS only (Q1–Q10)' : 'WhereWear only (Q11–Q14)');
+  chip.onclick = () => { groupFilter = g; renderControls(); renderMatrix(); };
+  chip.dataset.g = g;
+  groupControls.appendChild(chip);
+});
+participants.forEach(p=>{
+  const chip = document.createElement('div');
+  chip.className = 'chip pactive';
+  chip.textContent = p.short;
+  chip.dataset.pid = p.id;
+  chip.onclick = () => {
+    if(activeParticipants.has(p.id)){ activeParticipants.delete(p.id); }
+    else { activeParticipants.add(p.id); }
+    renderControls(); renderMatrix();
+  };
+  groupControls.appendChild(chip);
+});
+function renderControls(){
+  groupControls.querySelectorAll('.chip[data-g]').forEach(c=>{
+    c.classList.toggle('active', c.dataset.g === groupFilter);
+  });
+  groupControls.querySelectorAll('.chip[data-pid]').forEach(c=>{
+    c.classList.toggle('pactive', activeParticipants.has(c.dataset.pid));
+  });
+}
+renderControls();
+
+/* ---------- matrix ---------- */
+function scoreClass(v){ return 's'+v; }
+function renderMatrix(){
+  const visibleItems = items.filter(it => groupFilter==='ALL' || it.group===groupFilter);
+  const visibleParticipants = participants.filter(p => activeParticipants.has(p.id));
+  const table = document.getElementById('matrixTable');
+  let thead = '<thead><tr><th>Item</th>';
+  visibleParticipants.forEach(p=>{ thead += `<th class="itemcol">${esc(p.short)}</th>`; });
+  thead += '</tr></thead>';
+  let tbody = '<tbody>';
+  visibleItems.forEach((it, idx)=>{
+    const sep = (it.code === 'Q11') ? ' wwrow-sep' : '';
+    tbody += `<tr class="${sep}"><th><span class="qcode">${it.code}</span>${esc(it.text)}</th>`;
+    visibleParticipants.forEach(p=>{
+      const i = items.findIndex(x=>x.code===it.code);
+      const v = scores[p.id][i];
+      tbody += `<td class="cell ${scoreClass(v)}" data-pid="${p.id}" data-code="${it.code}"><span class="n">${v}</span></td>`;
+    });
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+  table.querySelectorAll('td.cell').forEach(td=>{
+    td.addEventListener('click', ()=>{
+      const pid = td.dataset.pid, code = td.dataset.code;
+      const p = participants.find(x=>x.id===pid);
+      const it = items.find(x=>x.code===code);
+      const v = scores[pid][items.findIndex(x=>x.code===code)];
+      const panel = document.getElementById('evidencePanel');
+      panel.innerHTML = `<div class="ehead">${esc(p.label)} · ${code} · score <span class="escore">${v}/5</span></div>
+        <div style="color:var(--slate);font-size:12.5px;margin-bottom:8px">“${esc(it.text)}”</div>
+        <div>${esc(evidence[pid][code])}</div>`;
+      panel.classList.add('show');
+      panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+  });
+}
+renderMatrix();
+
+/* ---------- quantitative ---------- */
+const quantGrid = document.getElementById('quantGrid');
+participants.forEach(p=>{
+  const q = quantitative[p.id];
+  const card = document.createElement('div');
+  card.className = 'qcard';
+  card.innerHTML = `
+    <div class="pname">${esc(p.label)}</div>
+    <div class="qstat"><span>Success</span><b><span class="badge">${esc(q.success)}</span></b></div>
+    <div class="qstat"><span>Time on task</span><b style="text-align:right">${esc(q.time)}</b></div>
+    <div class="qstat"><span>Errors / retries</span><b>${esc(q.errors)} (approx.)</b></div>
+    <div class="qstat"><span>Moderator prompts</span><b>${esc(q.prompts || 'N/A')}</b></div>
+    <div class="qnote">${esc(q.note)}</div>`;
+  quantGrid.appendChild(card);
+});
+
+/* ---------- qualitative ---------- */
+const qualGrid = document.getElementById('qualGrid');
+participants.forEach(p=>{
+  const q = qualitative[p.id];
+  const card = document.createElement('div');
+  card.className = 'qualcard';
+  card.dataset.searchtext = (q.quotes.join(' ') + ' ' + q.suggestions + ' ' + q.emotion).toLowerCase();
+  const quotesHtml = q.quotes.map(s=>`<blockquote>“${esc(s)}”</blockquote>`).join('');
+  card.innerHTML = `
+    <div class="pname">${esc(p.label)}</div>
+    <div class="emo">${esc(q.emotion)}</div>
+    ${quotesHtml}
+    <div class="sugg"><b>Spontaneous suggestions</b>${esc(q.suggestions)}</div>`;
+  qualGrid.appendChild(card);
+});
+document.getElementById('qualSearch').addEventListener('input', (e)=>{
+  const term = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.qualcard').forEach(c=>{
+    c.classList.toggle('hide', term && !c.dataset.searchtext.includes(term));
+  });
+});
+</script>
+</body>
+</html>
