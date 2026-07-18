@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémoire UX — Tatiana Postnikova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFFFF;
+    --ink:#1B2A4A;
+    --ink-dim:#5B6B85;
+    --line:#E4EDF6;
+    --line-strong:#CFE0F0;
+    --blue-deep:#3B47A7;
+    --blue-sky:#11ACED;
+    --blue-mid:#4CABE4;
+    --blue-light:#89C8F2;
+    --blue-wash:#F1F8FE;
+    --red:#D32B3F;
+    --card:#F5F8FC;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 28px;
+    height:66px;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .brand{display:flex; flex-direction:column; line-height:1.15;}
+  .brand .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--blue-sky); font-weight:500;
+  }
+  .brand .title{
+    font-family:'Fraunces',serif; font-weight:500; font-size:17px; color:var(--blue-deep);
+  }
+  .burger{
+    width:42px; height:42px; border-radius:6px; border:1px solid var(--line-strong);
+    background:var(--paper); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:4px; flex-direction:column;
+  }
+  .burger span{display:block; width:20px; height:2px; background:var(--blue-deep); transition:transform .2s ease, opacity .2s ease;}
+  .burger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .burger.open span:nth-child(2){opacity:0;}
+  .burger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+  /* ---------- nav drawer ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(27,42,74,0.35);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:45;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; left:0; bottom:0; width:340px; max-width:86vw;
+    background:var(--paper); z-index:50;
+    box-shadow:12px 0 30px rgba(27,42,74,0.18);
+    transform:translateX(-100%); transition:transform .28s ease;
+    display:flex; flex-direction:column; padding:26px 24px;
+    overflow-y:auto;
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer h3{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--ink-dim); margin:0 0 16px;
+  }
+  .nav-group{margin-bottom:18px;}
+  .nav-item{
+    display:block; padding:10px 12px; border-radius:6px; text-decoration:none;
+    color:var(--ink); margin-bottom:4px; transition:background .15s ease;
+  }
+  .nav-item:hover, .nav-item.active{background:var(--blue-wash);}
+  .nav-item .n-title{font-family:'Inter',sans-serif; font-weight:500; font-size:14px;}
+  .nav-item .n-sub{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-dim); margin-top:2px;
+  }
+  .nav-item.top .n-title{color:var(--blue-deep); font-weight:600;}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:900px; margin:0 auto; padding:0 28px;}
+  section{scroll-margin-top:90px; padding:70px 0;}
+  section + section{border-top:1px solid var(--line);}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--blue-sky); font-weight:500; margin:0 0 10px;
+  }
+  h1{
+    font-family:'Fraunces',serif; font-weight:500; font-size:38px; line-height:1.15;
+    color:var(--blue-deep); margin:0 0 18px;
+  }
+  h2.phase-title{
+    font-family:'Fraunces',serif; font-weight:500; font-size:30px; line-height:1.2;
+    color:var(--blue-deep); margin:6px 0 20px;
+  }
+  h3.block-title{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:15px; color:var(--ink);
+    margin:26px 0 10px;
+  }
+  p{font-size:15px; line-height:1.65; color:var(--ink-dim); margin:0 0 14px;}
+  .dates{
+    font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-dim);
+  }
+
+  .callout{
+    background:var(--blue-wash); border-left:2px solid var(--blue-sky);
+    border-radius:0 8px 8px 0; padding:18px 22px; margin:18px 0;
+  }
+  .callout p{color:var(--ink); margin:0; font-family:'Fraunces',serif; font-style:italic; font-size:16px; line-height:1.55;}
+  .callout .label{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--blue-deep); font-weight:500; display:block; margin-bottom:8px;
+  }
+
+  .hyp-grid{display:grid; grid-template-columns:1fr; gap:12px; margin:14px 0 6px;}
+  .hyp{
+    background:var(--card); border-radius:8px; padding:14px 18px;
+    border:1px solid var(--line);
+  }
+  .hyp .tag{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:var(--red);
+    margin-right:8px;
+  }
+  .hyp p{margin:0; color:var(--ink); font-size:14px; line-height:1.55;}
+  .hyp.secondary .tag{color:var(--blue-mid);}
+
+  .src-cat{margin-bottom:20px;}
+  .src-cat .cat-title{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; color:var(--blue-deep); margin-bottom:8px;
+  }
+  .src-cat ul{margin:0; padding-left:18px;}
+  .src-cat li{font-size:13.5px; color:var(--ink-dim); line-height:1.55; margin-bottom:6px;}
+  .src-cat li b{color:var(--ink); font-weight:600;}
+
+  .jalon-box{
+    display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;
+    background:var(--card); border-radius:8px; padding:16px 20px; margin:18px 0 26px;
+  }
+  .jalon-box .jbit{flex:1; min-width:200px;}
+  .jalon-box .jlabel{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink-dim); margin-bottom:4px;
+  }
+  .jalon-box .jvalue{font-size:14px; color:var(--ink); line-height:1.5;}
+
+  .deliverables{margin-top:8px;}
+  .deliv-card{
+    border:1.5px dashed var(--line-strong); border-radius:8px;
+    padding:18px 20px; margin-bottom:14px; background:var(--paper);
+  }
+  .deliv-card .d-title{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:var(--ink); margin-bottom:6px;
+  }
+  .deliv-card .d-placeholder{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-dim); font-style:italic;
+  }
+
+  .roadmap-embed{
+    border:1px solid var(--line-strong); border-radius:10px;
+    margin:20px 0; padding:32px 32px 20px; background:var(--paper);
+  }
+  .meta-row{
+    display:flex; gap:24px; flex-wrap:wrap; margin:0 0 32px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-dim);
+  }
+  .meta-row span b{color:var(--ink); font-weight:600;}
+  .axis{
+    position:relative; height:34px; margin-left:190px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .axis .month{
+    position:absolute; top:0;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--ink-dim);
+    border-left:1px solid var(--line); padding-left:6px; height:100%;
+  }
+  .today-line{position:absolute; top:0; bottom:-460px; width:1px; background:var(--red); z-index:5;}
+  .today-label{
+    position:absolute; top:-18px; left:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--red); white-space:nowrap;
+  }
+  .rows{position:relative; padding-top:6px;}
+  .g-row{display:flex; align-items:center; height:50px; border-bottom:1px solid var(--line);}
+  .g-row:last-child{border-bottom:none;}
+  .row-label{
+    width:190px; flex:0 0 190px; padding-right:14px;
+    font-size:12px; font-weight:500; color:var(--ink); line-height:1.25;
+  }
+  .row-label small{
+    display:block; font-family:'IBM Plex Mono',monospace; font-weight:400;
+    font-size:9.5px; color:var(--ink-dim); margin-top:2px;
+  }
+  .track{position:relative; flex:1; height:100%;}
+  .bar{
+    position:absolute; top:50%; transform:translateY(-50%); height:18px;
+    border-radius:3px; cursor:default; transition:filter 0.15s ease;
+  }
+  .bar:hover{filter:brightness(1.1);}
+  .bar.phase-recherche{background:var(--blue-deep);}
+  .bar.phase-analyse{background:var(--blue-sky);}
+  .bar.phase-conception{background:var(--blue-mid);}
+  .bar.phase-cloture{background:var(--blue-light);}
+  .milestone{
+    position:absolute; top:50%; width:10px; height:10px; background:var(--red);
+    border:2px solid #fff; box-shadow:0 0 0 1px var(--red);
+    transform:translate(-50%,-50%) rotate(45deg); z-index:4;
+  }
+  .route{
+    position:absolute; top:50%; left:0; right:0; height:0;
+    border-top:1px dashed var(--line-strong); z-index:1;
+  }
+  .g-tooltip{
+    position:absolute; display:none; background:var(--blue-deep); color:#fff;
+    border-radius:4px; padding:12px 14px; font-size:12px; line-height:1.5;
+    width:250px; z-index:60; box-shadow:0 8px 20px rgba(27,42,74,0.25);
+  }
+  .g-tooltip .t-title{
+    font-family:'Fraunces',serif; font-weight:600; font-size:13px; margin-bottom:6px; color:#fff;
+  }
+  .g-tooltip .t-date{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--blue-light);}
+  .g-tooltip .t-label{
+    font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--blue-light); margin:8px 0 2px;
+  }
+  .legend{
+    display:flex; gap:20px; flex-wrap:wrap; margin:20px 0 0 190px;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-dim);
+  }
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .legend .sw{width:9px; height:9px; border-radius:2px; display:inline-block;}
+  .milestones-list{margin-top:44px;}
+  .milestones-list h3.block-title{margin-top:0;}
+  .ms-item{
+    display:grid; grid-template-columns:120px 1fr; gap:18px;
+    padding:14px 0; border-top:1px solid var(--line);
+  }
+  .ms-item .ms-date{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--red);}
+  .ms-item .ms-body h4{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; margin:0 0 3px; color:var(--ink);
+  }
+  .ms-item .ms-body p{font-size:12px; line-height:1.5; color:var(--ink-dim); margin:0;}
+
+  @media (max-width:640px){
+    .axis, .row-label, .legend{margin-left:0;}
+    .g-row{flex-direction:column; align-items:flex-start; height:auto; padding:10px 0;}
+    .row-label{width:100%; padding-right:0; margin-bottom:8px;}
+    .track{width:100%; height:24px;}
+    .ms-item{grid-template-columns:1fr;}
+  }
+
+  .top-eyebrow-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:4px;}
+
+  footer{
+    text-align:center; padding:40px 28px 60px; color:var(--ink-dim);
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+  }
+
+  @media (max-width:640px){
+    h1{font-size:29px;} h2.phase-title{font-size:24px;}
+    .topbar{padding:0 18px;} .wrap{padding:0 18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="burger" id="burgerBtn" aria-label="Ouvrir le menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="brand">
+    <span class="eyebrow">Certification UX Gobelins · 2026</span>
+    <span class="title">Mémoire — Tatiana Postnikova</span>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<nav class="drawer" id="drawer" aria-label="Sommaire du mémoire">
+  <h3>Sommaire</h3>
+  <div class="nav-group">
+    <a class="nav-item top" href="#cadrage"><div class="n-title">Cadrage du mémoire</div><div class="n-sub">Problématique · objectifs · sources</div></a>
+    <a class="nav-item top" href="#roadmap"><div class="n-title">Roadmap</div><div class="n-sub">Vue d'ensemble · Gantt · jalons</div></a>
+  </div>
+  <h3>Phases &amp; livrables</h3>
+  <div class="nav-group">
+    <a class="nav-item" href="#phase1"><div class="n-title">1 · Cadrage et audit</div><div class="n-sub">14 – 31 juillet</div></a>
+    <a class="nav-item" href="#phase2"><div class="n-title">2 · Recherche utilisateur</div><div class="n-sub">28 juillet – 22 août</div></a>
+    <a class="nav-item" href="#phase3"><div class="n-title">3 · Recherche écosystème</div><div class="n-sub">11 – 29 août</div></a>
+    <a class="nav-item" href="#phase4"><div class="n-title">4 · Synthèse</div><div class="n-sub">25 août – 5 septembre</div></a>
+    <a class="nav-item" href="#phase5"><div class="n-title">5 · Idéation</div><div class="n-sub">7 – 25 septembre</div></a>
+    <a class="nav-item" href="#phase6"><div class="n-title">6 · Conception</div><div class="n-sub">28 septembre – 23 octobre</div></a>
+    <a class="nav-item" href="#phase7"><div class="n-title">7 · Tests utilisateurs</div><div class="n-sub">26 octobre – 6 novembre</div></a>
+    <a class="nav-item" href="#phase8"><div class="n-title">8 · Finalisation &amp; soutenance</div><div class="n-sub">9 – 11 novembre</div></a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= CADRAGE ================= -->
+  <section id="cadrage">
+    <p class="eyebrow">Cadrage du mémoire</p>
+    <h1>Comment les parents russophones de Paris, peu connectés aux réseaux communautaires, peuvent-ils transmettre un ancrage culturel à leurs enfants quand cette offre circule surtout par bouche-à-oreille ?</h1>
+
+    <div class="jalon-box">
+      <div class="jbit">
+        <div class="jlabel">Objectif</div>
+        <div class="jvalue">Permettre l'accès à un ancrage culturel pour l'enfant</div>
+      </div>
+      <div class="jbit">
+        <div class="jlabel">Point bloquant</div>
+        <div class="jvalue">L'offre existe mais reste captive de réseaux informels fermés, transmise par bouche-à-oreille</div>
+      </div>
+    </div>
+
+    <h3 class="block-title">Hypothèses primaires</h3>
+    <div class="hyp-grid">
+      <div class="hyp"><span class="tag">H1</span><p>Le principal frein à l'ancrage culturel n'est pas l'absence d'offre, mais l'appartenance ou non à un réseau informel déjà constitué (paroisse, nounous, groupes de parents).</p></div>
+      <div class="hyp"><span class="tag">H2</span><p>Les connecteurs/facilitateurs de réseaux informels (prêtres, nounous, animateurs d'associations) jouent un rôle de gatekeeper : l'accès à l'offre dépend davantage de la rencontre avec eux que de la recherche active des parents.</p></div>
+    </div>
+
+    <h3 class="block-title">Hypothèses secondaires</h3>
+    <div class="hyp-grid">
+      <div class="hyp secondary"><span class="tag">H3</span><p>Les parents peu connectés développent des stratégies de compensation individuelles (ressources en ligne, voyages en Russie, cercle familial) qui ne remplacent pas l'accès aux réseaux communautaires locaux.</p></div>
+      <div class="hyp secondary"><span class="tag">H4</span><p>Le niveau d'ancrage jugé « suffisant » varie selon l'âge de l'enfant : les attentes se concentrent sur la langue orale en bas âge et se déplacent vers l'identité et la culture à l'adolescence.</p></div>
+    </div>
+
+    <h3 class="block-title">Questionnements</h3>
+    <div class="hyp-grid">
+      <div class="hyp"><p>Comment un parent hors-réseau peut-il entrer en contact avec ces cercles informels (paroisse, nounous, groupes de parents) ?</p></div>
+      <div class="hyp"><p>Qu'est-ce qu'un ancrage culturel « suffisant » aux yeux d'un parent ?</p></div>
+      <div class="hyp"><p>Le besoin varie-t-il selon l'âge de l'enfant ?</p></div>
+    </div>
+
+    <h3 class="block-title">Sources disponibles, envisagées</h3>
+
+    <div class="src-cat">
+      <div class="cat-title">Transmission intergénérationnelle &amp; identité</div>
+      <ul>
+        <li>Littérature sur la transmission intergénérationnelle et la construction identitaire des enfants de la diaspora — axe à compléter (pistes : <b>John W. Berry</b>, stratégies d'acculturation des enfants et adolescents)</li>
+      </ul>
+    </div>
+
+    <div class="src-cat">
+      <div class="cat-title">Sociolinguistique du bilinguisme</div>
+      <ul>
+        <li><b>Colin Baker</b>, <i>A Parents' and Teachers' Guide to Bilingualism</i> (Multilingual Matters, 4e éd.) — guide pratique sur la transmission de la langue minoritaire en contexte familial</li>
+        <li><b>François Grosjean</b>, <i>Bilingual: Life and Reality</i> — cadre théorique sur l'acquisition et le maintien du bilinguisme</li>
+      </ul>
+    </div>
+
+    <div class="src-cat">
+      <div class="cat-title">Acculturation &amp; communautés diasporiques en France</div>
+      <ul>
+        <li><b>Stéphane Dufoix</b>, <i>Diasporas</i> (2003) — cadre sociologique sur la structuration des communautés diasporiques</li>
+        <li><b>Catherine Gousseff</b>, <i>Immigrés russes en France (1900-1950)</i>, thèse EHESS (1996) — histoire des vagues d'émigration russe et de leurs structures communautaires</li>
+        <li><b>IFRI / Centre Russie-Eurasie</b>, <i>La nouvelle diaspora russe : défis et opportunités pour l'Europe</i> (11 juin 2024) — intégration et réseaux de la nouvelle vague post-2022</li>
+      </ul>
+    </div>
+
+    <div class="src-cat">
+      <div class="cat-title">Capital social &amp; réseaux faibles/forts</div>
+      <ul>
+        <li><b>Mark Granovetter</b>, « The Strength of Weak Ties » (1973) — pourquoi l'information circule ou non hors des cercles constitués</li>
+        <li><b>Pierre Bourdieu</b>, « Les formes du capital » — capital social et accès inégal aux réseaux communautaires</li>
+      </ul>
+    </div>
+
+    <div class="src-cat">
+      <div class="cat-title">Cartographie de l'offre &amp; benchmarks</div>
+      <ul>
+        <li>Recensement direct : paroisses orthodoxes, écoles du week-end, associations, réseaux de nounous russophones, commerces, groupes de parents, événements culturels — à construire pendant le cadrage</li>
+        <li>Benchmarks de plateformes communautaires (ex. InterNations, groupes Facebook russophones à Paris) — à documenter</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= ROADMAP ================= -->
+  <section id="roadmap">
+    <p class="eyebrow">Roadmap</p>
+    <h2 class="phase-title">14 juillet – 11 novembre 2026</h2>
+    <div class="meta-row">
+      <span>Durée&nbsp;: <b>14 juillet – 11 novembre 2026</b></span>
+      <span>Tuteur de cadrage&nbsp;: <b>Magali Dulot</b></span>
+      <span>8 phases · 8 jalons</span>
+    </div>
+
+    <div class="roadmap-embed">
+      <div class="axis" id="g-axis"></div>
+      <div class="rows" id="g-rows"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--blue-deep)"></i>Recherche</span>
+        <span><i class="sw" style="background:var(--blue-sky)"></i>Analyse &amp; idéation</span>
+        <span><i class="sw" style="background:var(--blue-mid)"></i>Conception &amp; tests</span>
+        <span><i class="sw" style="background:var(--blue-light)"></i>Clôture</span>
+        <span><i class="sw" style="background:var(--red);transform:rotate(45deg)"></i>Jalon / livrable</span>
+      </div>
+    </div>
+
+    <div class="milestones-list">
+      <h3 class="block-title">Jalons &amp; livrables</h3>
+      <div id="g-msList"></div>
+    </div>
+  </section>
+
+  <div class="g-tooltip" id="g-tooltip"></div>
+
+  <!-- ================= PHASE 1 ================= -->
+  <section id="phase1">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 1</p>
+      <span class="dates">14 – 31 juillet 2026</span>
+    </div>
+    <h2 class="phase-title">Cadrage et audit</h2>
+    <p>Recensement de l'offre existante, revue de littérature, préparation du guide d'entretien.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Guide d'entretien · synthèse de littérature · cartographie initiale de l'offre</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Guide d'entretien</div><div class="d-placeholder">À compléter — lien du document ou version intégrée ici</div></div>
+      <div class="deliv-card"><div class="d-title">Synthèse de littérature</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Cartographie initiale de l'offre</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 2 ================= -->
+  <section id="phase2">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 2</p>
+      <span class="dates">28 juillet – 22 août 2026</span>
+    </div>
+    <h2 class="phase-title">Recherche utilisateur</h2>
+    <p>10 entretiens semi-directifs, répartis entre parents connectés et parents peu connectés aux réseaux communautaires.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Verbatims retranscrits · premières observations</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Verbatims retranscrits</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Premières observations</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 3 ================= -->
+  <section id="phase3">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 3</p>
+      <span class="dates">11 – 29 août 2026</span>
+    </div>
+    <h2 class="phase-title">Recherche écosystème</h2>
+    <p>3 à 4 entretiens avec des connecteurs/facilitateurs de réseaux informels et des acteurs de l'offre culturelle.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Cartographie des réseaux et des points d'accès</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Cartographie des réseaux et points d'accès</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 4 ================= -->
+  <section id="phase4">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 4</p>
+      <span class="dates">25 août – 5 septembre 2026</span>
+    </div>
+    <h2 class="phase-title">Synthèse</h2>
+    <p>Analyse croisée des entretiens, construction des personas, experience map, identification des points de friction.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Personas · experience map · pain points priorisés</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Personas</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Experience map</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Pain points priorisés</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 5 ================= -->
+  <section id="phase5">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 5</p>
+      <span class="dates">7 – 25 septembre 2026</span>
+    </div>
+    <h2 class="phase-title">Idéation</h2>
+    <p>Problématique affinée, hypothèses de valeur, priorisation des jobs-to-be-done.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Problématique finale validée · backlog de pistes priorisé</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Problématique finale validée</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Backlog de pistes priorisé</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 6 ================= -->
+  <section id="phase6">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 6</p>
+      <span class="dates">28 septembre – 23 octobre 2026</span>
+    </div>
+    <h2 class="phase-title">Conception</h2>
+    <p>Architecture de l'information, wireframes basse fidélité, prototype interactif.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Prototype v1 testable</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Architecture de l'information</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Wireframes</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Prototype v1</div><div class="d-placeholder">À compléter — lien Figma</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 7 ================= -->
+  <section id="phase7">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 7</p>
+      <span class="dates">26 octobre – 6 novembre 2026</span>
+    </div>
+    <h2 class="phase-title">Tests utilisateurs</h2>
+    <p>5 tests utilisateur sur le prototype, itération.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Rapport de tests · prototype v2 itéré</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Rapport de tests</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Prototype v2</div><div class="d-placeholder">À compléter — lien Figma</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PHASE 8 ================= -->
+  <section id="phase8">
+    <div class="top-eyebrow-row">
+      <p class="eyebrow" style="margin-bottom:0">Phase 8</p>
+      <span class="dates">9 – 11 novembre 2026</span>
+    </div>
+    <h2 class="phase-title">Finalisation &amp; soutenance</h2>
+    <p>Rédaction finale du mémoire, préparation du pitch et des supports de soutenance.</p>
+    <div class="callout">
+      <span class="label">Jalon</span>
+      <p>Mémoire complet · support de soutenance</p>
+    </div>
+    <h3 class="block-title">Livrables de cette phase</h3>
+    <div class="deliverables">
+      <div class="deliv-card"><div class="d-title">Mémoire complet (PDF)</div><div class="d-placeholder">À compléter</div></div>
+      <div class="deliv-card"><div class="d-title">Support de soutenance</div><div class="d-placeholder">À compléter</div></div>
+    </div>
+  </section>
+
+  <footer>Mémoire UX Design — Formation continue Gobelins 2026 · Tatiana Postnikova</footer>
+</div>
+
+<script>
+  // ---------- roadmap / gantt ----------
+  const RANGE_START = new Date(2026,6,14);
+  const RANGE_END   = new Date(2026,10,11);
+  const TODAY       = new Date();
+
+  const phases = [
+    {name:"1. Cadrage et audit", cat:"recherche",
+     start:"2026-07-14", end:"2026-07-31",
+     activities:"Recensement de l'offre existante ; revue de littérature (bilinguisme, capital social, diaspora russophone) ; préparation du guide d'entretien",
+     livrable:"Guide d'entretien ; synthèse de littérature ; cartographie initiale de l'offre"},
+    {name:"2. Recherche utilisateur", cat:"recherche",
+     start:"2026-07-28", end:"2026-08-22",
+     activities:"10 entretiens semi-directifs, répartis entre parents connectés et parents peu connectés aux réseaux communautaires",
+     livrable:"Verbatims retranscrits ; premières observations"},
+    {name:"3. Recherche écosystème", cat:"recherche",
+     start:"2026-08-11", end:"2026-08-29",
+     activities:"3 à 4 entretiens avec des connecteurs/facilitateurs de réseaux informels (paroisse, associations, groupes de parents) et acteurs de l'offre culturelle",
+     livrable:"Cartographie des réseaux et des points d'accès"},
+    {name:"4. Synthèse", cat:"analyse",
+     start:"2026-08-25", end:"2026-09-05",
+     activities:"Analyse croisée des entretiens ; construction des personas ; experience map ; identification des points de friction",
+     livrable:"Personas ; experience map ; pain points priorisés"},
+    {name:"5. Idéation", cat:"analyse",
+     start:"2026-09-07", end:"2026-09-25",
+     activities:"Problématique affinée ; ateliers HMW ; hypothèses de valeur ; priorisation des jobs-to-be-done",
+     livrable:"Problématique finale validée ; backlog de pistes priorisé"},
+    {name:"6. Conception", cat:"conception",
+     start:"2026-09-28", end:"2026-10-23",
+     activities:"Architecture de l'information ; wireframes basse fidélité ; prototype interactif",
+     livrable:"Prototype v1 testable"},
+    {name:"7. Tests utilisateurs", cat:"conception",
+     start:"2026-10-26", end:"2026-11-06",
+     activities:"5 tests utilisateur sur le prototype ; itération",
+     livrable:"Rapport de tests ; prototype v2 itéré"},
+    {name:"8. Finalisation & soutenance", cat:"cloture",
+     start:"2026-11-09", end:"2026-11-11",
+     activities:"Rédaction finale du mémoire ; préparation du pitch et des supports de soutenance",
+     livrable:"Mémoire complet ; support de soutenance"},
+  ];
+  const catClass = {recherche:"phase-recherche", analyse:"phase-analyse", conception:"phase-conception", cloture:"phase-cloture"};
+
+  function pct(date){
+    const d = new Date(date);
+    const total = RANGE_END - RANGE_START;
+    return Math.max(0, Math.min(100, ((d - RANGE_START) / total) * 100));
+  }
+  function fmtDate(iso){
+    const d = new Date(iso);
+    const months = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+    return d.getDate() + " " + months[d.getMonth()];
+  }
+
+  const gAxis = document.getElementById("g-axis");
+  const gMonths = [
+    {label:"Juillet", date:new Date(2026,6,14)},
+    {label:"Août", date:new Date(2026,7,1)},
+    {label:"Septembre", date:new Date(2026,8,1)},
+    {label:"Octobre", date:new Date(2026,9,1)},
+    {label:"Novembre", date:new Date(2026,10,1)},
+  ];
+  gMonths.forEach((m,i)=>{
+    const left = pct(m.date);
+    const nextLeft = i < gMonths.length-1 ? pct(gMonths[i+1].date) : 100;
+    const el = document.createElement("div");
+    el.className = "month";
+    el.style.left = left + "%";
+    el.style.width = (nextLeft-left) + "%";
+    el.textContent = m.label;
+    gAxis.appendChild(el);
+  });
+  if (TODAY >= RANGE_START && TODAY <= RANGE_END) {
+    const todayLine = document.createElement("div");
+    todayLine.className = "today-line";
+    todayLine.style.left = pct(TODAY) + "%";
+    todayLine.innerHTML = '<span class="today-label">Aujourd\'hui</span>';
+    gAxis.appendChild(todayLine);
+  }
+
+  const gRowsEl = document.getElementById("g-rows");
+  const gTooltip = document.getElementById("g-tooltip");
+  const gMsList = document.getElementById("g-msList");
+
+  function positionGTooltip(e){
+    const pad = 16;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    const tw = 250, th = gTooltip.offsetHeight || 110;
+    if (x + tw > window.innerWidth) x = e.clientX - tw - pad;
+    if (y + th > window.innerHeight) y = e.clientY - th - pad;
+    gTooltip.style.left = (x + window.scrollX) + "px";
+    gTooltip.style.top = (y + window.scrollY) + "px";
+  }
+
+  phases.forEach(p=>{
+    const row = document.createElement("div");
+    row.className = "g-row";
+
+    const label = document.createElement("div");
+    label.className = "row-label";
+    label.innerHTML = p.name + "<small>" + fmtDate(p.start) + " → " + fmtDate(p.end) + "</small>";
+    row.appendChild(label);
+
+    const track = document.createElement("div");
+    track.className = "track";
+
+    const route = document.createElement("div");
+    route.className = "route";
+    track.appendChild(route);
+
+    const left = pct(p.start);
+    const right = pct(p.end);
+    const bar = document.createElement("div");
+    bar.className = "bar " + catClass[p.cat];
+    bar.style.left = left + "%";
+    bar.style.width = Math.max(1.2, right-left) + "%";
+    bar.addEventListener("mousemove", (e)=>{
+      gTooltip.style.display = "block";
+      gTooltip.innerHTML =
+        '<div class="t-title">'+p.name+'</div>'+
+        '<div class="t-date">'+fmtDate(p.start)+' → '+fmtDate(p.end)+'</div>'+
+        '<div class="t-label">Activités</div><div>'+p.activities+'</div>'+
+        '<div class="t-label">Livrable</div><div>'+p.livrable+'</div>';
+      positionGTooltip(e);
+    });
+    bar.addEventListener("mouseleave", ()=>{ gTooltip.style.display = "none"; });
+    track.appendChild(bar);
+
+    const ms = document.createElement("div");
+    ms.className = "milestone";
+    ms.style.left = right + "%";
+    ms.addEventListener("mousemove", (e)=>{
+      gTooltip.style.display = "block";
+      gTooltip.innerHTML =
+        '<div class="t-title">Jalon — '+p.name+'</div>'+
+        '<div class="t-label">Livrable</div><div>'+p.livrable+'</div>';
+      positionGTooltip(e);
+    });
+    ms.addEventListener("mouseleave", ()=>{ gTooltip.style.display = "none"; });
+    track.appendChild(ms);
+
+    row.appendChild(track);
+    gRowsEl.appendChild(row);
+
+    const item = document.createElement("div");
+    item.className = "ms-item";
+    item.innerHTML =
+      '<div class="ms-date">'+fmtDate(p.end)+'</div>'+
+      '<div class="ms-body"><h4>'+p.name+'</h4><p>'+p.livrable+'</p></div>';
+    gMsList.appendChild(item);
+  });
+
+  // ---------- nav / drawer ----------
+  const burger = document.getElementById('burgerBtn');
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+
+  function openDrawer(){
+    drawer.classList.add('open'); overlay.classList.add('show');
+    burger.classList.add('open'); burger.setAttribute('aria-expanded','true');
+  }
+  function closeDrawer(){
+    drawer.classList.remove('open'); overlay.classList.remove('show');
+    burger.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }
+  burger.addEventListener('click', () => {
+    drawer.classList.contains('open') ? closeDrawer() : openDrawer();
+  });
+  overlay.addEventListener('click', closeDrawer);
+  document.querySelectorAll('.nav-item').forEach(a => {
+    a.addEventListener('click', () => setTimeout(closeDrawer, 150));
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+  // scroll-spy: highlight active nav item
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        navItems.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+  sections.forEach(s => spy.observe(s));
+</script>
+
+</body>
+</html>
